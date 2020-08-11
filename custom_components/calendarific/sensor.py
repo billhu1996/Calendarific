@@ -29,6 +29,7 @@ from .const import (
 ATTR_TYPE = "type"
 ATTR_DESCRIPTION = "description"
 ATTR_DATE = "date"
+ATTR_OFFDAY = "offday"
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
@@ -104,6 +105,14 @@ class calendarific(Entity):
         res[ATTR_DATE] = self._attr_date
         res[ATTR_DESCRIPTION] = self._description
         res[ATTR_TYPE] = self._type
+        if "Weekend" in self._type:
+            res[ATTR_OFFDAY] = False
+        elif "National holiday" in self._type:
+            res[ATTR_OFFDAY] = True
+        elif self._date.weekday() == 5 or self._date.weekday() == 6:
+            res[ATTR_OFFDAY] = True
+        else:
+            res[ATTR_OFFDAY] = False
         return res
 
     @property
