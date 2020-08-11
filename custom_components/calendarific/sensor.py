@@ -26,6 +26,7 @@ from .const import (
     DOMAIN,
 )
 
+ATTR_TYPE = "type"
 ATTR_DESCRIPTION = "description"
 ATTR_DATE = "date"
 
@@ -64,7 +65,7 @@ class calendarific(Entity):
         self._holiday = config.get(CONF_HOLIDAY)
         self._name = config.get(CONF_NAME)
         if self._name == '':
-            self._name = self._holiday
+            self._name = DOMAIN + "_" + self._holiday
         self._icon_normal = config.get(CONF_ICON_NORMAL)
         self._icon_today = config.get(CONF_ICON_TODAY)
         self._icon_soon = config.get(CONF_ICON_SOON)
@@ -73,6 +74,7 @@ class calendarific(Entity):
         self._icon = self._icon_normal
         self._reader = reader
         self._description = self._reader.get_description(self._holiday)
+        self._type = self._reader.get_type(self._holiday)
         self._date = self._reader.get_date(self._holiday)
         if self._date == "-":
             self._attr_date = self._date
@@ -101,6 +103,7 @@ class calendarific(Entity):
         res = {}
         res[ATTR_DATE] = self._attr_date
         res[ATTR_DESCRIPTION] = self._description
+        res[ATTR_TYPE] = self._type
         return res
 
     @property
@@ -120,6 +123,7 @@ class calendarific(Entity):
     async def async_update(self):
         await self.hass.async_add_executor_job(self._reader.update)
         self._description = self._reader.get_description(self._holiday)
+        self._type = self._reader.get_type(self._holiday)
         self._date = self._reader.get_date(self._holiday)
         if self._date == "-":
             self._state = "unknown"

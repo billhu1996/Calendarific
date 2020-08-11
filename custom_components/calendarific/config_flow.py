@@ -78,8 +78,12 @@ class CalendarificConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 icon_today = user_input[CONF_ICON_TODAY]
             if CONF_DATE_FORMAT in user_input:
                 date_format = user_input[CONF_DATE_FORMAT]
+
+        temp_holiday_list = [holiday_list[i] for i in Idx]
+        temp_holiday_list.append('next')
+
         data_schema = OrderedDict()
-        data_schema[vol.Required(CONF_HOLIDAY, default=holiday)] = vol.In(holiday_list) 
+        data_schema[vol.Required(CONF_HOLIDAY, default=holiday)] = vol.In(temp_holiday_list) 
         data_schema[vol.Optional(CONF_NAME, default=name)] = str
         data_schema[vol.Required(CONF_ICON_NORMAL, default=icon_normal)] = str
         data_schema[vol.Required(CONF_ICON_TODAY, default=icon_today)] = str

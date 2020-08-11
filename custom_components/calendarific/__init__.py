@@ -78,24 +78,100 @@ class CalendarificApiReader:
     
     def get_state(self):
         return "new"
+
+    def get_today(self):
+        try:
+            today = date.today()
+            for i in self._holidays:
+                datetime = i['date']['datetime']
+                testdate = date(datetime['year'],datetime['month'],datetime['day'])
+                if testdate == today:
+                    return i
+            for i in self._next_holidays:
+                datetime = i['date']['datetime']
+                testdate = date(datetime['year'],datetime['month'],datetime['day'])
+                if testdate == today:
+                    return i
+            return None
+        except:
+            return None
+    
+    def get_nextDay(self):
+        try:
+            today = date.today()
+            for i in self._holidays:
+                datetime = i['date']['datetime']
+                testdate = date(datetime['year'],datetime['month'],datetime['day'])
+                if testdate > today:
+                    return i
+            for i in self._next_holidays:
+                datetime = i['date']['datetime']
+                testdate = date(datetime['year'],datetime['month'],datetime['day'])
+                if testdate > today:
+                    return i
+            return None
+        except:
+            return None
     
     def get_date(self,holiday_name):
         try:
             today = date.today()
-            holiday_datetime = next(i for i in self._holidays if i['name'] == holiday_name)['date']['datetime']
-            testdate = date(holiday_datetime['year'],holiday_datetime['month'],holiday_datetime['day'])
-            if testdate < today:
-                holiday_datetime = next(i for i in self._next_holidays if i['name'] == holiday_name)['date']['datetime']
+            if holiday_name == "today":
+                return today
+            elif holiday_name == "next":
+                next_day = self.get_nextDay()
+                if next_day:
+                    datetime = next_day['date']['datetime']
+                    return date(datetime['year'],datetime['month'],datetime['day'])
+                else:
+                    return "-"
+            else:
+                holiday_datetime = next(i for i in self._holidays if i['name'] == holiday_name)['date']['datetime']
                 testdate = date(holiday_datetime['year'],holiday_datetime['month'],holiday_datetime['day'])
-            return testdate
+                if testdate < today:
+                    holiday_datetime = next(i for i in self._next_holidays if i['name'] == holiday_name)['date']['datetime']
+                    testdate = date(holiday_datetime['year'],holiday_datetime['month'],holiday_datetime['day'])
+                return testdate
         except:
             return "-"
-    
+
     def get_description(self,holiday_name):
         try:
-            return next(i for i in self._holidays if i['name'] == holiday_name)['description']
+            if holiday_name == "today":
+                next_day = self.get_today()
+                if next_day:
+                    return next_day['description']
+                else:
+                    return "NOT FOUND"
+            elif holiday_name == "next":
+                next_day = self.get_nextDay()
+                if next_day:
+                    return next_day['description']
+                else:
+                    return "NOT FOUND"
+            else:
+                return next(i for i in self._holidays if i['name'] == holiday_name)['description']
         except:
             return "NOT FOUND"
+
+    def get_type(self,holiday_name):
+        try:
+            if holiday_name == "today":
+                next_day = self.get_today()
+                if next_day:
+                    return next_day['type']
+                else:
+                    return []
+            elif holiday_name == "next":
+                next_day = self.get_nextDay()
+                if next_day:
+                    return next_day['type']
+                else:
+                    return []
+            else:
+                return next(i for i in self._holidays if i['name'] == holiday_name)['type']
+        except:
+            return []
 
     def update(self):
         if self._lastupdated == datetime.now().date():
