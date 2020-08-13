@@ -81,6 +81,8 @@ class CalendarificConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         temp_holiday_list = [holiday_list[i] for i in Idx]
         temp_holiday_list.append('next')
+        temp_holiday_list.append('today')
+        temp_holiday_list.append('tomorrow')
 
         data_schema = OrderedDict()
         data_schema[vol.Required(CONF_HOLIDAY, default=holiday)] = vol.In(temp_holiday_list) 

@@ -109,7 +109,7 @@ class calendarific(Entity):
             res[ATTR_OFFDAY] = False
         elif "National holiday" in self._type:
             res[ATTR_OFFDAY] = True
-        elif self._date.weekday() == 5 or self._date.weekday() == 6:
+        elif self._date != "-" and (self._date.weekday() == 5 or self._date.weekday() == 6):
             res[ATTR_OFFDAY] = True
         else:
             res[ATTR_OFFDAY] = False

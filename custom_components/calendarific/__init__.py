@@ -1,7 +1,7 @@
 """Calendarific Platform"""
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import logging
-import json 
+import json
 import requests
 
 import voluptuous as vol
@@ -75,51 +75,40 @@ class CalendarificApiReader:
         self.next_holidays = []
         self._error_logged = False
         self.update()
-    
+
     def get_state(self):
         return "new"
 
-    def get_today(self):
+    def get_holiday(self,holiday_name):
         try:
-            today = date.today()
+            if holiday_name == "tomorrow":
+                the_date = date.today() + timedelta(days = 1)
+            else:
+                the_date = date.today()
+            next = holiday_name == "next"
             for i in self._holidays:
                 datetime = i['date']['datetime']
                 testdate = date(datetime['year'],datetime['month'],datetime['day'])
-                if testdate == today:
+                if (testdate > the_date) if next else (testdate == today):
                     return i
             for i in self._next_holidays:
                 datetime = i['date']['datetime']
                 testdate = date(datetime['year'],datetime['month'],datetime['day'])
-                if testdate == today:
+                if (testdate > the_date) if next else (testdate == today):
                     return i
             return None
         except:
             return None
-    
-    def get_nextDay(self):
-        try:
-            today = date.today()
-            for i in self._holidays:
-                datetime = i['date']['datetime']
-                testdate = date(datetime['year'],datetime['month'],datetime['day'])
-                if testdate > today:
-                    return i
-            for i in self._next_holidays:
-                datetime = i['date']['datetime']
-                testdate = date(datetime['year'],datetime['month'],datetime['day'])
-                if testdate > today:
-                    return i
-            return None
-        except:
-            return None
-    
+
     def get_date(self,holiday_name):
         try:
             today = date.today()
             if holiday_name == "today":
                 return today
+            elif holiday_name == "tomorrow":
+                return today + timedelta(days = 1)
             elif holiday_name == "next":
-                next_day = self.get_nextDay()
+                next_day = self.get_holiday(holiday_name)
                 if next_day:
                     datetime = next_day['date']['datetime']
                     return date(datetime['year'],datetime['month'],datetime['day'])
@@ -137,16 +126,10 @@ class CalendarificApiReader:
 
     def get_description(self,holiday_name):
         try:
-            if holiday_name == "today":
-                next_day = self.get_today()
-                if next_day:
-                    return next_day['description']
-                else:
-                    return "NOT FOUND"
-            elif holiday_name == "next":
-                next_day = self.get_nextDay()
-                if next_day:
-                    return next_day['description']
+            if holiday_name in ["today", "tomorrow", "next"]:
+                holiday = self.get_holiday(holiday_name)
+                if holiday:
+                    return holiday['description']
                 else:
                     return "NOT FOUND"
             else:
@@ -156,14 +139,8 @@ class CalendarificApiReader:
 
     def get_type(self,holiday_name):
         try:
-            if holiday_name == "today":
+            if holiday_name in ["today", "tomorrow", "next"]:
                 next_day = self.get_today()
-                if next_day:
-                    return next_day['type']
-                else:
-                    return []
-            elif holiday_name == "next":
-                next_day = self.get_nextDay()
                 if next_day:
                     return next_day['type']
                 else:
@@ -201,7 +178,7 @@ class CalendarificApiReader:
         holiday_list = []
         for holiday in self._holidays:
             holiday_list.append(holiday['name'])
-        
+
         return True
 
 class calendarificAPI:
