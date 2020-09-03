@@ -153,6 +153,7 @@ class CalendarificApiReader:
     def update(self):
         if self._lastupdated == datetime.now().date():
             return
+        self._lastupdated = datetime.now().date()
         year = date.today().year
         params = {'country': self._country,'year': year,'location': self._state}
         calapi = calendarificAPI(self._api_key)
@@ -173,7 +174,6 @@ class CalendarificApiReader:
             return
         self._error_logged = False
         self._next_holidays = response['response']['holidays']
-        self._lastupdated = datetime.now().date()
         global holiday_list
         holiday_list = []
         for holiday in self._holidays:
